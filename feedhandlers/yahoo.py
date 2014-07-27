@@ -1,0 +1,1 @@
+YAHOO_URL = 'http://download.finance.yahoo.com/d/quotes.csv?'
