@@ -1,0 +1,3 @@
+http://uk.finance.yahoo.com/q/cp?s=%5EFTSE
+http://uk.finance.yahoo.com/q/cp?s=%5EFTSE&c=1
+http://uk.finance.yahoo.com/q/cp?s=%5EFTSE&c=2

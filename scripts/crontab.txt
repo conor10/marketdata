@@ -1,0 +1,4 @@
+00 19 * * * ${HOME}/trading/marketdata/scripts/runner ftse100_symbol_download.sh > ${HOME}/trading/cron/ftse100_symbol_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+00 19 * * * ${HOME}/trading/marketdata/scripts/runner ftse100_epic_download.sh > ${HOME}/trading/cron/ftse100_epic_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+00 20 * * * ${HOME}/trading/marketdata/scripts/runner push_updates_s3.sh > ${HOME}/trading/cron/push_updates_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+runner push_updates_s3.sh

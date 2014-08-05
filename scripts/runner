@@ -1,0 +1,52 @@
+#!/bin/bash
+
+current_dir="$(dirname "$0")"
+source "${current_dir}/.profile"
+source "${current_dir}/common.sh"
+
+
+send_alert() {
+  echo "Sending alert.."
+}
+
+
+check_directories() {
+  for dir in "${SYMBOL_DIR}" "${PRICE_DIR}"; do
+    if [[ ! -d "${dir}" ]]; then
+      err "Directory does not exist: ${dir}"
+      exit 1
+    fi
+  done
+}
+
+
+run() {
+  source "${current_dir}/$@"
+  if [[ $? != 0 ]]; then
+    message="Error running: [$1], script returned non-zero exit code"
+    err "${message}"
+    send_alert "${message}"
+  fi
+}
+
+
+main() {
+  if [[ $# != 1 ]]; then
+    echo "Usage: $(basename $0) <script-name> <script args>"
+    exit 1
+  fi
+
+  check_directories
+
+  local file="${1}"
+  shift
+  if [[ -f "${current_dir}/${file}" ]]; then
+    run "${file}" "$@"
+  else
+    echo "Error, script ${file} does not exist"
+    exit 1
+  fi
+}
+
+
+main "$@"
