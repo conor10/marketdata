@@ -60,6 +60,21 @@ class TestGoogle(unittest.TestCase):
              218.4, 218.4, 218.15, 218.1995, 116648.0],
             price_response.raw_data(expected_entries - 1))
 
+    def test_request_intraday_minute_prices(self):
+        """CDATA field is not returned on all queries"""
+        expected_entries = 458
+        price_response = google.request_prices('AAL', exchange='LON',
+                                               interval=60)
+        self.assertEqual(expected_entries, price_response.length)
+        self.assertListEqual(
+            [dt.datetime(2014, 8, 06, 7, 0),
+             1547.5, 1547.5, 1547.5, 1547.5, 15951.0],
+            price_response.raw_data(0))
+        self.assertListEqual(
+            [dt.datetime(2014, 8, 6, 15, 29),
+             1568.0, 1568.5, 1568.0, 1568.5, 2338.0],
+            price_response.raw_data(expected_entries - 1))
+
 
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stderr)

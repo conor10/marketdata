@@ -8,7 +8,7 @@ SOURCE_URL='http://shares.telegraph.co.uk/indices/?index=UKX'
 
 
 download_symbols() {
-  /usr/bin/wget -O "${HTML_OUT}" "${SOURCE_URL}"
+  /usr/local/bin/wget -O "${HTML_OUT}" "${SOURCE_URL}"
 }
 
 

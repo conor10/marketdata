@@ -1,5 +1,5 @@
 #!/bin/bash
-DATE=$(date -u '+%Y%m%d')
+export DATE=$(date -u '+%Y%m%d')
 
 
 err() {

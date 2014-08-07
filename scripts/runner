@@ -21,7 +21,13 @@ check_directories() {
 
 
 run() {
-  source "${current_dir}/$@"
+  file_name=$1
+  if [[ file_name == *.py ]]; then
+    /usr/bin/env/python "${current_dir}/$@"
+  else
+    source "${current_dir}/$@"
+  fi
+
   if [[ $? != 0 ]]; then
     message="Error running: [$1], script returned non-zero exit code"
     err "${message}"

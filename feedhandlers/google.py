@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from abc import abstractproperty
 import datetime as dt
 import pytz
 import simplejson
@@ -16,6 +17,15 @@ QUOTE_URL = 'http://finance.google.com/finance/info?'
 """Price url provides timeseries price data for instruments."""
 PRICE_URL = 'http://www.google.com/finance/getprices?'
 
+"""A real url that we don't want to process the response from."""
+DUMMY_URL = 'https://www.google.com/finance?' \
+            'q={0}%3A{1}&ei=RhLiU4DJO8jxkQX7i4GgBg'
+
+
+def dummy_request(symbol, exchange='NASDAQ'):
+    request_url = DUMMY_URL.format(exchange, symbol)
+    _send_request(request_url)
+
 
 def request_quote(symbols, exchange='NASDAQ'):
     """Encode arguments in format sym1:EXCH&sym2:EXCH&..."""
@@ -27,16 +37,17 @@ def request_quote(symbols, exchange='NASDAQ'):
 
 
 def _send_request(url):
+    logging.debug(url)
     return urllib2.urlopen(url)
 
 
 class Response(object):
-    def __init__(self, content):
-        self.data = self._parse_response(content)
+    def __init__(self):
+        pass
 
-    @property
+    @abstractproperty
     def is_valid(self):
-        return len(self.data) > 0
+        pass
 
     @abstractmethod
     def _parse_response(self, content):
@@ -63,9 +74,14 @@ class QuoteResponse(Response):
     YIELD = 'yld'
 
     def __init__(self, content):
-        super(QuoteResponse, self).__init__(content)
+        super(QuoteResponse, self).__init__()
+        self.data = self._parse_response(content)
         self.log = logging.getLogger(__name__)
         self._last_trade_time = self._parse_last_trade_time()
+
+    @property
+    def is_valid(self):
+        return len(self.data) > 0
 
     def _parse_response(self, response):
         content = response.read()
@@ -110,7 +126,7 @@ class QuoteResponse(Response):
         return str([self.__dict__[key] for key in self.__dict__])
 
 
-def request_prices(symbol, exchange='NASDAQ', interval=1, period='1d',
+def request_prices(symbol, exchange='NASDAQ', interval=60, period='1d',
                    fields='d,o,h,l,c,v'):
     """Request prices data.
 
@@ -141,6 +157,8 @@ def _encode_url(symbol, exchange, interval, period, fields):
 
 class PriceResponse(Response):
     def __init__(self, response, interval):
+        super(PriceResponse, self).__init__()
+
         self.log = logging.getLogger(__name__)
         self.interval = interval
         self.current_timestamp = 0
@@ -151,7 +169,7 @@ class PriceResponse(Response):
         self.close = []
         self.volume = []
 
-        super(PriceResponse, self).__init__(response)
+        self._parse_response(response)
 
     def append(self, timestamp, open_px, high, low, close, volume):
         self.timestamp.append(timestamp)
@@ -160,6 +178,10 @@ class PriceResponse(Response):
         self.low.append(low)
         self.close.append(close)
         self.volume.append(volume)
+
+    @property
+    def is_valid(self):
+        return len(self.timestamp) > 0
 
     def _parse_response(self, response):
         csv_data = response.readlines()
@@ -184,12 +206,12 @@ class PriceResponse(Response):
             entries = csv_data[i].count(',')
             if entries == 0 and csv_data[i].split('=')[0] == 'TIMEZONE_OFFSET':
                 timezone_offset = self._process_timezone_offset(csv_data[i])
-            elif entries == 6:
+            elif entries == 5 or entries == 6:
+                # The CDATA field may or may not be present
                 self._process_csv_row(csv_data[i])
             else:
-                print 'Unexpected result count {}'.format(entries)
                 self.log.error('Unable to process row data: {}'
-                               .format(entries, csv_data[i]))
+                               .format(csv_data[i]))
                 break
 
     @staticmethod
@@ -197,8 +219,15 @@ class PriceResponse(Response):
         return record.split('=')[1]
 
     def _process_csv_row(self, data):
-        offset, close, high, low, open_px, volume, cdays = \
-            data.split(',')
+        record = data.split(',')
+
+        offset = record[0]
+        close = record[1]
+        high = record[2]
+        low = record[3]
+        open_px = record[4]
+        volume = record[5]
+
         if offset[0] == 'a':
             self.current_timestamp = float(offset[1:])
             offset = 0
@@ -211,7 +240,7 @@ class PriceResponse(Response):
         self.append(dt_timestamp, open_px, high, low, close, volume)
 
     def to_csv(self):
-        out = 'timestamp, open, high, low, close, volume\n'
+        out = 'timestamp,open,high,low,close,volume\n'
         for i in range(0, len(self.timestamp)):
             out += '{0},{1},{2},{3},{4},{5}\n'.format(
                 self.timestamp[i], self.open_px[i], self.high[i],
