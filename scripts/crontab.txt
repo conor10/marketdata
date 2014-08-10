@@ -1,7 +1,0 @@
-# FTSE100 symbol download
-00 19 * * 1-5 ${HOME}/trading/marketdata/scripts/runner ftse100_symbol_download.sh > ${HOME}/trading/cron/ftse100_symbol_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
-00 19 * * 1-5 ${HOME}/trading/marketdata/scripts/runner ftse100_epic_download.sh > ${HOME}/trading/cron/ftse100_epic_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
-# FTSE 100 prices download
-30 19 * * 1-5 ${HOME}/trading/marketdata/scripts/runner ftse100_prices_download.sh > ${HOME}/trading/cron/ftse100_prices_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
-# Push updates to S3
-00 20 * * 1-5 ${HOME}/trading/marketdata/scripts/runner push_updates_s3.sh > ${HOME}/trading/cron/push_updates_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1

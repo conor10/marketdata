@@ -3,12 +3,12 @@
 DEST_DIR="${FTSE100_SYMBOLS}/${DATE}"
 TEMP_DIR="${FTSE100_SYMBOLS}/tmp"
 HTML_OUT="${TEMP_DIR}/ftse_telegraph_${DATE}.html"
-OUTFILE="${DEST_DIR}/epics.txt"
+OUTFILE="${DEST_DIR}/symbols.txt"
 SOURCE_URL='http://shares.telegraph.co.uk/indices/?index=UKX'
 
 
 download_symbols() {
-  /usr/local/bin/wget -O "${HTML_OUT}" "${SOURCE_URL}"
+  /usr/bin/wget -O "${HTML_OUT}" "${SOURCE_URL}"
 }
 
 

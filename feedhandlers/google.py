@@ -18,12 +18,26 @@ QUOTE_URL = 'http://finance.google.com/finance/info?'
 PRICE_URL = 'http://www.google.com/finance/getprices?'
 
 """A real url that we don't want to process the response from."""
-DUMMY_URL = 'https://www.google.com/finance?' \
-            'q={0}%3A{1}&ei=RhLiU4DJO8jxkQX7i4GgBg'
+DUMMY_STOCK = 'https://www.google.com/finance?' \
+            'q={}&ei=RhLiU4DJO8jxkQX7i4GgBg'
+DUMMY_NEWS = 'https://www.google.com/finance/company_news?' \
+             'q={}&ei=OK_mU4CCKc_ZkgWDy4HYBg'
+DUMMY_CHART = 'https://www.google.com/finance?' \
+              'chdnp=1&chdd=1&chds=1&chdv=1&chvs=maximized' \
+              '&chdeh=0&chfdeh=0&chdet=1407503880000' \
+              '&chddm=2011164&chls=IntervalBasedLine' \
+              '&q={}&ntsp=0&ei=4uDmU-DOBcS4kAWpyIC4AQ'
+DUMMY_URLS = [DUMMY_STOCK, DUMMY_NEWS, DUMMY_CHART]
 
 
-def dummy_request(symbol, exchange='NASDAQ'):
-    request_url = DUMMY_URL.format(exchange, symbol)
+def dummy_request(symbol, exchange='', index=0):
+
+    dummy_url = DUMMY_URLS[index % len(DUMMY_URLS)]
+
+    if exchange is '':
+        request_url = dummy_url.format(symbol)
+    else:
+        request_url = dummy_url.format(exchange + '%3A' + symbol)
     _send_request(request_url)
 
 
@@ -126,7 +140,7 @@ class QuoteResponse(Response):
         return str([self.__dict__[key] for key in self.__dict__])
 
 
-def request_prices(symbol, exchange='NASDAQ', interval=60, period='1d',
+def request_prices(symbol, exchange='', interval=60, period='1d',
                    fields='d,o,h,l,c,v'):
     """Request prices data.
 

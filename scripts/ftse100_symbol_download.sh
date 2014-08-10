@@ -3,7 +3,7 @@
 DEST_DIR="${FTSE100_SYMBOLS}/${DATE}"
 TEMP_DIR="${FTSE100_SYMBOLS}/tmp"
 HTML_OUT="${TEMP_DIR}/ftse_yahoo_${DATE}.html"
-OUTFILE="${DEST_DIR}/symbols.txt"
+OUTFILE="${DEST_DIR}/symbols-yahoo.txt"
 SOURCE_URLS_FILE="$(dirname $0)/yahoo_urls.txt"
 
 

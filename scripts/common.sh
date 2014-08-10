@@ -7,6 +7,11 @@ err() {
 }
 
 
+msg() {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@"
+}
+
+
 create_dir() {
   local dir_name=$1
 

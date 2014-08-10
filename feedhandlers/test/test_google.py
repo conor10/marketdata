@@ -1,5 +1,6 @@
 import datetime as dt
 import logging
+import mock
 import pytz
 import sys
 import unittest
@@ -74,6 +75,27 @@ class TestGoogle(unittest.TestCase):
             [dt.datetime(2014, 8, 6, 15, 29),
              1568.0, 1568.5, 1568.0, 1568.5, 2338.0],
             price_response.raw_data(expected_entries - 1))
+
+    def test_dummy_url_requests(self):
+        google._send_request = mock.Mock()
+        google.dummy_request('TEST', 'EXCH', 0)
+        google._send_request.assert_called_with(
+            google.DUMMY_URLS[0].format('EXCH%3ATEST'))
+
+        google._send_request = mock.Mock()
+        google.dummy_request('TEST1', 'EXCH1', 0)
+        google._send_request.assert_called_with(
+            google.DUMMY_URLS[0].format('EXCH1%3ATEST1'))
+
+        google._send_request = mock.Mock()
+        google.dummy_request('TEST3', 'EXCH3', 3)
+        google._send_request.assert_called_with(
+            google.DUMMY_URLS[0].format('EXCH3%3ATEST3'))
+
+        google._send_request = mock.Mock()
+        google.dummy_request('TEST', '', 3)
+        google._send_request.assert_called_with(
+            google.DUMMY_URLS[0].format('TEST'))
 
 
 if __name__ == '__main__':

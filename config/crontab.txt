@@ -1,0 +1,30 @@
+#
+# Symbol downloads -  changes to all indexes take place after the close on
+# the 3rd Friday of each quarter
+#
+# FTSE100 symbol download
+00 19 * * 0 ${HOME}/trading/marketdata/scripts/runner ftse100_symbol_download.sh > ${HOME}/trading/cron/ftse100_symbol_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+00 19 * * 0 ${HOME}/trading/marketdata/scripts/runner ftse100_epic_download.sh > ${HOME}/trading/cron/ftse100_epic_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+# S&P500 symbol download
+00 23 * * 0 ${HOME}/trading/marketdata/scripts/runner sp500_symbol_download.sh > ${HOME}/trading/cron/sp500_symbol_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+# ASX200 symbol download
+00 09 * * 0 ${HOME}/trading/marketdata/scripts/runner asx200_symbol_download.sh > ${HOME}/trading/cron/asx200_symbol_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+# Roll our current symbols
+30 23 * * 0 ${HOME}/trading/marketdata/scripts/runner roll_symbols.sh > ${HOME}/trading/cron/roll_symbols.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+#
+# Push symbol updates to S3
+#
+30 23 * * 0 ${HOME}/trading/marketdata/scripts/runner push_symbol_updates_s3.sh > ${HOME}/trading/cron/push_updates_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+#
+# Prices downloads
+#
+# FTSE 100 prices download
+30 19 * * 1-5 ${HOME}/trading/marketdata/scripts/runner ftse100_prices_download.sh > ${HOME}/trading/cron/ftse100_prices_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+# S&P500 prices download
+30 23 * * 1-5 ${HOME}/trading/marketdata/scripts/runner sp500_prices_download.sh > ${HOME}/trading/cron/sp500_prices_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+# ASX200 prices download
+30 09 * * 1-5 ${HOME}/trading/marketdata/scripts/runner asx200_prices_download.sh > ${HOME}/trading/cron/asx200_prices_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+#
+# Push price updates to S3
+#
+00 02 * * 2-6 ${HOME}/trading/marketdata/scripts/runner push_price_updates_s3.sh > ${HOME}/trading/cron/push_updates_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
