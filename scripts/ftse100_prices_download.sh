@@ -7,7 +7,7 @@ EXCHANGE="LON"
 
 main() {
   create_dir "${DEST_DIR}"
-  /usr/bin/env python "$REQUESTOR" "${EXCHANGE}" "${SYMBOL_LIST}" "${DEST_DIR}"
+  /usr/bin/env python "$REQUESTOR" "${SYMBOL_LIST}" "${DEST_DIR}" "${EXCHANGE}"
 }
 
 
