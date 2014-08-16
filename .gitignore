@@ -6,3 +6,5 @@
 *.iml
 # Ignore open spreadsheet files
 ~$*.xlsx
+# Ignore MANIFEST build files
+MANIFEST

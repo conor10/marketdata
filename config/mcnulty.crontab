@@ -14,7 +14,7 @@
 #
 # Push symbol updates to S3
 #
-30 23 * * 0 ${HOME}/trading/marketdata/scripts/runner push_symbol_updates_s3.sh > ${HOME}/trading/cron/push_updates_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+35 23 * * 0 ${HOME}/trading/marketdata/scripts/runner push_symbol_updates_s3.sh > ${HOME}/trading/cron/push_symbol_updates_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
 #
 # Prices downloads
 #
@@ -27,4 +27,4 @@
 #
 # Push price updates to S3
 #
-00 02 * * 2-6 ${HOME}/trading/marketdata/scripts/runner push_price_updates_s3.sh > ${HOME}/trading/cron/push_updates_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+55 23 * * 1-5 ${HOME}/trading/marketdata/scripts/runner push_price_updates_s3.sh > ${HOME}/trading/cron/push_price_updates_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1

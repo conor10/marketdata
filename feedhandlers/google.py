@@ -1,12 +1,14 @@
 from abc import abstractmethod
 from abc import abstractproperty
 import datetime as dt
+import logging
 import pytz
 import simplejson
-import logging
 import urllib
 import urllib2
+import yaml
 
+from feedhandlers import utils
 
 # Complete exchange list:
 # http://www.google.com/intl/en/googlefinance/disclaimer/
@@ -16,6 +18,12 @@ QUOTE_URL = 'http://finance.google.com/finance/info?'
 
 """Price url provides timeseries price data for instruments."""
 PRICE_URL = 'http://www.google.com/finance/getprices?'
+
+"""Options chains. If we don't specify a date, the nearest expiry is returned"""
+OPTIONS_CHAIN_URL = 'https://www.google.com/finance/option_chain?' \
+                    'q={}&output=json'
+OPTIONS_CHAIN_DATE_URL = 'https://www.google.com/finance/option_chain?' \
+                         'q={0}&expd={1}&expm={2}&expy={3}&output=json'
 
 """A real url that we don't want to process the response from."""
 DUMMY_STOCK = 'https://www.google.com/finance?' \
@@ -27,7 +35,12 @@ DUMMY_CHART = 'https://www.google.com/finance?' \
               '&chdeh=0&chfdeh=0&chdet=1407503880000' \
               '&chddm=2011164&chls=IntervalBasedLine' \
               '&q={}&ntsp=0&ei=4uDmU-DOBcS4kAWpyIC4AQ'
-DUMMY_URLS = [DUMMY_STOCK, DUMMY_NEWS, DUMMY_CHART]
+DUMMY_OPTION = 'https://www.google.com/finance/option_chain?q={}'
+DUMMY_URLS = [DUMMY_STOCK, DUMMY_NEWS, DUMMY_CHART, DUMMY_OPTION]
+
+
+# The number of requests sent this session
+request_count = 0
 
 
 def dummy_request(symbol, exchange='', index=0):
@@ -47,12 +60,33 @@ def request_quote(symbols, exchange='NASDAQ'):
                   '&'.join([exchange + ':' + symbol for symbol in symbols])
 
     response = _send_request(request_url)
-    return QuoteResponse(response)
+    if response is None:
+        return BadResponse()
+    else:
+        return QuoteResponse(response)
 
 
 def _send_request(url):
+    global request_count
+    if request_count != 0 and request_count % 1900 == 0:
+        utils.long_sleep()
+    else:
+        utils.random_sleep(0.5)
+    request_count += 1
+
     logging.debug(url)
-    return urllib2.urlopen(url)
+    try:
+        response = urllib2.urlopen(url)
+    except urllib2.HTTPError as e:
+        logging.error('Bad response for request: [url={}, error={}'
+                      .format(url, e))
+        if e.code == 400:
+            # In this case re-requesting with NYSE/NASDAQ may work
+            response = None
+        else:
+            raise
+
+    return response
 
 
 class Response(object):
@@ -64,6 +98,15 @@ class Response(object):
         pass
 
     @abstractmethod
+    def _parse_response(self, content):
+        pass
+
+
+class BadResponse(Response):
+    @property
+    def is_valid(self):
+        return False
+
     def _parse_response(self, content):
         pass
 
@@ -80,7 +123,7 @@ class QuoteResponse(Response):
     LAST_TRADE_DATE_TIMESTAMP_ISO = 'lt_dts'
     CHANGE_FROM_CLOSE = 'c'
     CHANGE_FROM_CLOSE_FIX = 'c_fix'
-    _CP = 'cp'
+    _CP = 'cp' # Percent change during trading
     _CP_FIX = 'cp_fix'
     _CCOL = 'ccol'
     PREVIOUS_CLOSE = 'pcls_fix'
@@ -268,3 +311,190 @@ class PriceResponse(Response):
     def raw_data(self, index):
         return [self.timestamp[index], self.open_px[index], self.high[index],
                 self.low[index], self.close[index], self.volume[index]]
+
+
+def request_options_chain(symbol, expiry_day=None,
+                          expiry_month=None, expiry_year=None):
+
+    url = _create_option_request_url(symbol, expiry_day, expiry_month,
+                                     expiry_year)
+
+    response = _send_request(url)
+    if response is None:
+        return BadResponse()
+    else:
+        return OptionChainResponse(response)
+
+
+def _create_option_request_url(symbol, expiry_day, expiry_month, expiry_year):
+    if expiry_day is None or expiry_month is None or expiry_year is None:
+        return OPTIONS_CHAIN_URL.format(symbol)
+    else:
+        return OPTIONS_CHAIN_DATE_URL.format(symbol, expiry_day, expiry_month,
+                                             expiry_year)
+
+
+class OptionChainResponse(Response):
+    def __init__(self, data):
+        super(OptionChainResponse, self).__init__()
+        self._data = None
+        self._expirations = None
+        self._expiry = None
+        self._calls = None
+        self._puts = None
+
+        self.log = logging.getLogger(__name__)
+
+        self._parse_response(data)
+
+    @property
+    def is_valid(self):
+        # Contains fields expiry, expirations, underlying_id, underlying_price
+        # No put or calls results in two fields only
+        return len(self._data) > 3
+
+    def _parse_response(self, response):
+        data = response.read()
+        """ As key values are not quoted in the response, it is not
+        considered valid JSON. We can convert to a Yaml parser friendly
+        format by simply adding a space after each colon key/value
+        pair separator
+        """
+        self._data = yaml.load(data.replace(':', ': '))
+        if not self.is_valid:
+            return
+
+        self._expiry = ExpiryDate(self._data['expiry'])
+        self._expirations = [ExpiryDate(x) for x in self._data['expirations']]
+
+    @property
+    def expirations(self):
+        return self._expirations
+
+    @property
+    def expiry(self):
+        return self._expiry
+
+    @property
+    def calls(self):
+        if self._calls is None:
+            if 'calls' in self._data:
+                self._calls = [OptionChain(x) for x in self._data['calls']]
+            else:
+                self._calls = []
+        return self._calls
+
+    @property
+    def puts(self):
+        if self._puts is None:
+            if 'puts' in self._data:
+                self._puts = [OptionChain(x) for x in self._data['puts']]
+            else:
+                self._puts = []
+        return self._puts
+
+
+class OptionChain(object):
+    def __init__(self, data):
+        self._data = data
+
+    @property
+    def ask(self):
+        return self._data['a']
+
+    @property
+    def bid(self):
+        return self._data['b']
+
+    @property
+    def change(self):
+        return self._data['c']
+
+    @property
+    def exchange(self):
+        return self._data['e']
+
+    @property
+    def name(self):
+        # Always '' at the time of writing
+        return self._data['name']
+
+    @property
+    def open_interest(self):
+        return self._data['oi']
+
+    @property
+    def contract_id(self):
+        return self._data['cid']
+
+    @property
+    def volume(self):
+        return self._data['vol']
+
+    @property
+    def expiry(self):
+        return self._data['expiry']
+
+    @property
+    def close_price(self):
+        return self._data['p']
+
+    @property
+    def symbol(self):
+        return self._data['s']
+
+    @property
+    def strike(self):
+        return self._data['strike']
+
+    @property
+    def cs(self):
+        # TODO: Find out what this means
+        # values 'chb', 'chr'
+        return self._data['cs']
+
+    @property
+    def cp(self):
+        # TODO: Find out what this means
+        # values '0.00' change in last?
+        return self._data['cp']
+
+    @property
+    def data(self):
+        return self._data
+
+    def __repr__(self):
+        return str(self._data)
+
+
+class ExpiryDate(object):
+    def __init__(self, data):
+        self._data = data
+
+    def __eq__(self, other):
+        if type(other) is type(self):
+            return self.__dict__ == other.__dict__
+        return False
+
+    @property
+    def year(self):
+        return self._data['y']
+
+    @property
+    def month(self):
+        return self._data['m']
+
+    @property
+    def day(self):
+        return self._data['d']
+
+    def __repr__(self):
+        return str(self.year) + self._zero_pad(self.month) \
+            + self._zero_pad(self.day)
+
+    @staticmethod
+    def _zero_pad(value):
+        if value < 10:
+            return '0' + str(value)
+        else:
+            return str(value)

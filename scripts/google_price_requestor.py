@@ -5,11 +5,9 @@ import random
 import sys
 import time
 
-import feedhandlers.google as google
+from feedhandlers import google
+from feedhandlers import utils
 import init_logger
-
-
-random.seed(10)
 
 
 def main():
@@ -24,7 +22,7 @@ def main():
     if len(sys.argv) == 4:
         exchange = sys.argv[3]
 
-    symbols = load_symbol_list(symbol_list_file)
+    symbols = utils.load_symbol_list(symbol_list_file)
     _trim_trailing_period(symbols)
     request_intraday_prices(symbols, exchange, dest_dir)
 
@@ -45,26 +43,11 @@ def request_intraday_prices(symbols, exchange, dest_dir):
 
         alternate_symbol = _select_alternative_symbol(index, symbols)
         google.dummy_request(alternate_symbol, exchange, index)
-        _random_sleep()
-
-
-def _random_sleep():
-    interval = math.fabs(random.random() - 0.5)
-    time.sleep(interval)
+        utils.random_sleep()
 
 
 def _select_alternative_symbol(index, symbols):
     return symbols[(index + 10) % len(symbols)]
-
-
-def load_symbol_list(filename):
-    try:
-        logging.debug('Loading symbol list from {}'.format(filename))
-        with open(filename, 'r') as f:
-            return f.read().splitlines()
-    except IOError:
-        logging.error('Unable to open file: {}'.format(filename))
-        return []
 
 
 def _trim_trailing_period(symbols):

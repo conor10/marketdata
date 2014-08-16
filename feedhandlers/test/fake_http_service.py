@@ -3,13 +3,14 @@ import os
 from StringIO import StringIO
 import urllib2
 
-from feedhandlers.google import PRICE_URL, QUOTE_URL
+from feedhandlers.google import PRICE_URL, QUOTE_URL, OPTIONS_CHAIN_URL
 from feedhandlers.yahoo import YAHOO_URL
 
 
 GOOGLE_DIR = os.path.join('data', 'google')
 GOOGLE_PRICE_DIR = os.path.join(GOOGLE_DIR, 'prices')
 GOOGLE_QUOTE_DIR = os.path.join(GOOGLE_DIR, 'quotes')
+GOOGLE_OPTION_DIR = os.path.join(GOOGLE_DIR, 'options')
 YAHOO_DATA_DIR = os.path.join('data', 'yahoo')
 
 
@@ -72,8 +73,7 @@ class DataFileHttpHandler(urllib2.HTTPHandler):
             header["Content-Type"] = "text/html"
             header["Content-Length"] = str(os.path.getsize(file_path))
 
-            resp = urllib2.addinfourl(open(file_path), header,
-                                      url)
+            resp = urllib2.addinfourl(open(file_path), header, url)
             resp.code = 200
             resp.msg = "OK"
             return resp
@@ -87,8 +87,10 @@ class DataFileHttpHandler(urllib2.HTTPHandler):
         return first_param.split('=')[1]
 
     def _is_valid_base_url(self, base_url):
-        return base_url == PRICE_URL or base_url == QUOTE_URL \
-               or base_url == YAHOO_URL
+        return base_url == PRICE_URL \
+            or base_url == QUOTE_URL \
+            or base_url == YAHOO_URL \
+            or base_url == OPTIONS_CHAIN_URL.split('?')[0]
 
     def _get_file_path(self, base_url, file_name):
         if base_url == PRICE_URL:
@@ -96,6 +98,9 @@ class DataFileHttpHandler(urllib2.HTTPHandler):
         elif base_url == QUOTE_URL:
             return os.path.join(GOOGLE_QUOTE_DIR, file_name + '.json')
         elif base_url == YAHOO_URL:
-            return os.path.join(YAHOO_DATA_DIR, file_name) + '.csv'
+            return os.path.join(YAHOO_DATA_DIR, file_name + '.csv')
+        elif base_url == OPTIONS_CHAIN_URL.split('?')[0]:
+            return os.path.join(GOOGLE_OPTION_DIR, file_name + '.json')
         else:
             return None
+
