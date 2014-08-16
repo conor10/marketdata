@@ -5,7 +5,6 @@ from mock import patch
 import pytz
 import sys
 import unittest
-import yaml
 
 import fake_http_service
 import feedhandlers.google as google
@@ -130,39 +129,41 @@ class TestOptionChains(unittest.TestCase):
     def test_request_option_chain_calls(self):
         option_chain = google.request_options_chain('GOOG')
         calls = option_chain.calls
-        self.assertEqual(118, len(calls))
+        self.assertEqual(151, len(calls))
 
-        self.assertDictEqual({'a': '275.40', 'c': '0.00', 'b': '271.10',
-                              'e': 'OPRA', 'name': '', 'oi': '1',
-                              'cid': '877706450339056', 'vol': '-',
-                              'expiry': 'Aug 16, 2014', 'p': '280.20',
-                              's': 'GOOG140816C00300000', 'cs': 'chb', 'cp': '0.00', 'strike': '300.00'},
+        self.assertDictEqual({'a': '58.40', 'c': '-', 'b': '57.95',
+                              'e': 'OPRA', 'name': '', 'oi': '0',
+                              'cid': '985928489129434', 'vol': '-',
+                              'expiry': 'Aug 16, 2014', 'p': '-',
+                              's': 'AAPL140816C00037860', 'strike': '37.86'},
                              calls[0].data)
 
-        self.assertDictEqual({'a': '0.25', 'c': '-', 'b': '-',
-                              'e': 'OPRA', 'name': '', 'oi': '0',
-                              'cid': '537832434771609', 'vol': '-',
-                              'expiry': 'Aug 16, 2014', 'p': '-',
-                              's': 'GOOG140816C00800000', 'strike': '800.00'},
+        self.assertDictEqual({'a': '0.01', 'c': '0.00', 'b': '-',
+                              'e': 'OPRA', 'name': '', 'oi': '633',
+                              'cid': '791404271676757', 'vol': '-',
+                              'expiry': 'Aug 16, 2014', 'p': '0.01',
+                              's': 'AAPL140816C00140000', 'cs': 'chb',
+                              'cp': '0.00', 'strike': '140.00'},
                              calls[-1].data)
 
     def test_request_option_chain_puts(self):
         option_chain = google.request_options_chain('GOOG')
         puts = option_chain.puts
-        self.assertEqual(118, len(puts))
+        self.assertEqual(151, len(puts))
 
-        self.assertDictEqual({'a': '0.25', 'c': '-', 'b': '-',
-                              'e': 'OPRA', 'name': '', 'oi': '0',
-                              'cid': '1059481369691863', 'vol': '-',
+        self.assertDictEqual({'a': '0.01', 'c': '-', 'b': '-',
+                              'e': 'OPRA', 'name': '', 'oi': '700',
+                              'cid': '597723653891363', 'vol': '-',
                               'expiry': 'Aug 16, 2014', 'p': '-',
-                              's': 'GOOG140816P00300000', 'strike': '300.00'},
+                              's': 'AAPL140816P00037860', 'strike': '37.86'},
                              puts[0].data)
 
-        self.assertDictEqual({'a': '228.60', 'c': '-', 'b': '224.60',
-                              'e': 'OPRA', 'name': '', 'oi': '0',
-                              'cid': '269567742624187', 'vol': '-',
-                              'expiry': 'Aug 16, 2014', 'p': '-',
-                              's': 'GOOG140816P00800000', 'strike': '800.00'},
+        self.assertDictEqual({'a': '44.25', 'c': '0.00', 'b': '43.75',
+                              'e': 'OPRA', 'name': '', 'oi': '1455',
+                              'cid': '247391588317856', 'vol': '-',
+                              'expiry': 'Aug 16, 2014', 'p': '45.00',
+                              's': 'AAPL140816P00140000', 'cs': 'chb',
+                              'cp': '0.00', 'strike': '140.00'},
                              puts[-1].data)
 
     def test_zero_pad(self):
@@ -202,4 +203,16 @@ class TestOptionChains(unittest.TestCase):
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stderr)
     logging.getLogger("TestGoogle").setLevel(logging.DEBUG)
-    unittest.main()
+    # unittest.main()
+    test_classes_to_run = [TestGoogle, TestOptionChains]
+    loader = unittest.TestLoader()
+
+    suites_list = []
+    for test_class in test_classes_to_run:
+        suite = loader.loadTestsFromTestCase(test_class)
+        suites_list.append(suite)
+
+    big_suite = unittest.TestSuite(suites_list)
+
+    runner = unittest.TextTestRunner()
+    results = runner.run(big_suite)

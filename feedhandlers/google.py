@@ -20,22 +20,22 @@ QUOTE_URL = 'http://finance.google.com/finance/info?'
 PRICE_URL = 'http://www.google.com/finance/getprices?'
 
 """Options chains. If we don't specify a date, the nearest expiry is returned"""
-OPTIONS_CHAIN_URL = 'https://www.google.com/finance/option_chain?' \
+OPTIONS_CHAIN_URL = 'http://www.google.com/finance/option_chain?' \
                     'q={}&output=json'
-OPTIONS_CHAIN_DATE_URL = 'https://www.google.com/finance/option_chain?' \
+OPTIONS_CHAIN_DATE_URL = 'http://www.google.com/finance/option_chain?' \
                          'q={0}&expd={1}&expm={2}&expy={3}&output=json'
 
 """A real url that we don't want to process the response from."""
-DUMMY_STOCK = 'https://www.google.com/finance?' \
+DUMMY_STOCK = 'http://www.google.com/finance?' \
             'q={}&ei=RhLiU4DJO8jxkQX7i4GgBg'
-DUMMY_NEWS = 'https://www.google.com/finance/company_news?' \
+DUMMY_NEWS = 'http://www.google.com/finance/company_news?' \
              'q={}&ei=OK_mU4CCKc_ZkgWDy4HYBg'
-DUMMY_CHART = 'https://www.google.com/finance?' \
+DUMMY_CHART = 'http://www.google.com/finance?' \
               'chdnp=1&chdd=1&chds=1&chdv=1&chvs=maximized' \
               '&chdeh=0&chfdeh=0&chdet=1407503880000' \
               '&chddm=2011164&chls=IntervalBasedLine' \
               '&q={}&ntsp=0&ei=4uDmU-DOBcS4kAWpyIC4AQ'
-DUMMY_OPTION = 'https://www.google.com/finance/option_chain?q={}'
+DUMMY_OPTION = 'http://www.google.com/finance/option_chain?q={}'
 DUMMY_URLS = [DUMMY_STOCK, DUMMY_NEWS, DUMMY_CHART, DUMMY_OPTION]
 
 

@@ -2,7 +2,7 @@ import urllib2
 import unittest
 
 import fake_http_service
-from feedhandlers.google import PRICE_URL, QUOTE_URL
+from feedhandlers.google import PRICE_URL, QUOTE_URL, OPTIONS_CHAIN_URL
 from feedhandlers.yahoo import YAHOO_URL
 
 
@@ -26,18 +26,24 @@ class FakeHttpDataServiceTest(unittest.TestCase):
             PRICE_URL + 'q=GOOG&x=NASD&i=86400&p=40Y&f=d,c,v,k,o,h,l')
         content = doc.read()
         self.assertEqual(
-            self._read_file('data/google/prices/GOOG.csv'), content)
+            self._read_file('test/data/google/prices/GOOG.csv'), content)
 
     def test_google_quote_data_download(self):
         doc = urllib2.urlopen(QUOTE_URL + 'q=NASDAQ:GOOG')
         content = doc.read()
         self.assertEqual(
-            self._read_file('data/google/quotes/NASDAQ:GOOG.json'), content)
+            self._read_file('test/data/google/quotes/NASDAQ:GOOG.json'), content)
+
+    def test_google_chain_data_download(self):
+        doc = urllib2.urlopen(OPTIONS_CHAIN_URL.format('GOOG'))
+        content = doc.read()
+        self.assertEqual(
+            self._read_file('test/data/google/options/GOOG.json'), content)
 
     def test_yahoo_data_download(self):
         doc = urllib2.urlopen(_TEST_YAHOO_URL)
         content = doc.read()
-        self.assertEqual(self._read_file('data/yahoo/GOOG.csv'), content)
+        self.assertEqual(self._read_file('test/data/yahoo/GOOG.csv'), content)
 
     def _read_file(self, filename):
         with open(filename, 'r') as f:
