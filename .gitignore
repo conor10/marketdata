@@ -8,3 +8,5 @@
 ~$*.xlsx
 # Ignore MANIFEST build files
 MANIFEST
+# Ignore distribution builds
+dist/
