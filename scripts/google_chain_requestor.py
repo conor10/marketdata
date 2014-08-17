@@ -62,9 +62,9 @@ def _request_expirations_chains(symbol, expirations, dest_dir):
 def _write_chain(symbol, option_chain, dest_dir):
     expiry = option_chain.expiry
     dest_calls_file = os.path.join(dest_dir,
-                                   symbol + str(expiry) + 'C' + '.json')
+                                   symbol + str(expiry) + 'C' + '.csv')
     dest_puts_file = os.path.join(dest_dir,
-                                  symbol + str(expiry) + 'P' + '.json')
+                                  symbol + str(expiry) + 'P' + '.csv')
 
     _write_file(dest_calls_file, option_chain.calls)
     _write_file(dest_puts_file, option_chain.puts)
@@ -72,8 +72,9 @@ def _write_chain(symbol, option_chain, dest_dir):
 
 def _write_file(file_name, data):
     with open(file_name, 'w') as f:
+        f.write(','.join(google.OptionChain.FIELDS))
         for item in data:
-            f.write(str(item) + '\n')
+            f.write(','.join(item.to_list()) + '\n')
 
 
 if __name__ == '__main__':

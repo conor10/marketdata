@@ -166,6 +166,21 @@ class TestOptionChains(unittest.TestCase):
                               'cp': '0.00', 'strike': '140.00'},
                              puts[-1].data)
 
+    def test_to_list(self):
+        option_chain = google.request_options_chain('GOOG')
+        calls = option_chain.calls
+        puts = option_chain.puts
+
+        self.assertListEqual(['ASK', 'BID', 'CHANGE', 'OPEN_INTEREST',
+                              'VOLUME', 'LAST_PRICE', 'STRIKE',
+                              'PERCENT_CHANGE'],
+                              [item for item in google.OptionChain.FIELDS])
+        self.assertListEqual(['58.40', '57.95', '-', '0', '-', '-',
+                              '37.86', ''],
+                             calls[0].to_list())
+        self.assertListEqual(['0.01', '-', '-', '700', '-', '-', '37.86', ''],
+                             puts[0].to_list())
+
     def test_zero_pad(self):
         self.assertEqual('01', google.ExpiryDate._zero_pad(1))
         self.assertEqual('10', google.ExpiryDate._zero_pad(10))
@@ -203,7 +218,6 @@ class TestOptionChains(unittest.TestCase):
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stderr)
     logging.getLogger("TestGoogle").setLevel(logging.DEBUG)
-    # unittest.main()
     test_classes_to_run = [TestGoogle, TestOptionChains]
     loader = unittest.TestLoader()
 

@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from abc import abstractproperty
+from collections import OrderedDict
 import datetime as dt
 import logging
 import pytz
@@ -19,7 +20,8 @@ QUOTE_URL = 'http://finance.google.com/finance/info?'
 """Price url provides timeseries price data for instruments."""
 PRICE_URL = 'http://www.google.com/finance/getprices?'
 
-"""Options chains. If we don't specify a date, the nearest expiry is returned"""
+"""Options chains. If we don't specify a date, the nearest expiry is returned
+"""
 OPTIONS_CHAIN_URL = 'http://www.google.com/finance/option_chain?' \
                     'q={}&output=json'
 OPTIONS_CHAIN_DATE_URL = 'http://www.google.com/finance/option_chain?' \
@@ -395,6 +397,19 @@ class OptionChainResponse(Response):
 
 
 class OptionChain(object):
+
+    FIELDS = OrderedDict([
+        ('ASK', 'a'),
+        ('BID', 'b'),
+        ('CHANGE', 'c'),
+        ('OPEN_INTEREST', 'oi'),
+        ('VOLUME', 'vol'),
+        ('LAST_PRICE', 'p'),
+        ('STRIKE', 'strike'),
+        ('PERCENT_CHANGE', 'cp')
+    ])
+
+
     def __init__(self, data):
         self._data = data
 
@@ -436,7 +451,7 @@ class OptionChain(object):
         return self._data['expiry']
 
     @property
-    def close_price(self):
+    def last_price(self):
         return self._data['p']
 
     @property
@@ -454,9 +469,7 @@ class OptionChain(object):
         return self._data['cs']
 
     @property
-    def cp(self):
-        # TODO: Find out what this means
-        # values '0.00' change in last?
+    def percent_change(self):
         return self._data['cp']
 
     @property
@@ -465,6 +478,16 @@ class OptionChain(object):
 
     def __repr__(self):
         return str(self._data)
+
+    def to_list(self):
+        results = []
+        for field in OptionChain.FIELDS.values():
+            if field in self._data:
+                results.append(self._data[field])
+            else:
+                results.append('')
+        return results
+
 
 
 class ExpiryDate(object):
