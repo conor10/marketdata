@@ -12,6 +12,13 @@ msg() {
 }
 
 
+send_mail() {
+  subject=$1
+  recipient=$2
+  /usr/bin/mail -s "${subject}" "${recipient}" < /dev/null
+}
+
+
 create_dir() {
   local dir_name=$1
 

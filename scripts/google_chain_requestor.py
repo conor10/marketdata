@@ -72,7 +72,7 @@ def _write_chain(symbol, option_chain, dest_dir):
 
 def _write_file(file_name, data):
     with open(file_name, 'w') as f:
-        f.write(','.join(google.OptionChain.FIELDS))
+        f.write(','.join(google.OptionChain.FIELDS) + '\n')
         for item in data:
             f.write(','.join(item.to_list()) + '\n')
 
