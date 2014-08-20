@@ -7,9 +7,9 @@ source "${current_dir}/common.sh"
 
 send_alert() {
   message=$1
-  echo "Sending alert.."
-  send_mail "${message}" "{ALERT_RECIPIENTS}"
-
+  echo "Sending alerts.."
+  send_mail "${EMAIL_RECIPIENTS}" "${message}"
+  send_text "${SMS_RECIPIENTS}" "${message}"
 }
 
 
