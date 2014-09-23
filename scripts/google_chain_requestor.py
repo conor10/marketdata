@@ -74,7 +74,8 @@ def _write_file(file_name, data):
     with open(file_name, 'w') as f:
         f.write(','.join(google.OptionChain.FIELDS) + '\n')
         for item in data:
-            f.write(','.join(item.to_list()) + '\n')
+            # Some fields contain commas
+            f.write('"' + '","'.join(item.to_list()) + '"\n')
 
 
 if __name__ == '__main__':
