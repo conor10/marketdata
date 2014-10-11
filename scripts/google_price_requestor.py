@@ -1,9 +1,7 @@
 import logging
-import math
 import os.path
-import random
 import sys
-import time
+
 
 from feedhandlers import google
 from feedhandlers import utils
@@ -23,7 +21,7 @@ def main():
         exchange = sys.argv[3]
 
     symbols = utils.load_symbol_list(symbol_list_file)
-    _trim_trailing_period(symbols)
+    utils.trim_trailing_period(symbols)
     request_intraday_prices(symbols, exchange, dest_dir)
 
 
@@ -48,13 +46,6 @@ def request_intraday_prices(symbols, exchange, dest_dir):
 
 def _select_alternative_symbol(index, symbols):
     return symbols[(index + 10) % len(symbols)]
-
-
-def _trim_trailing_period(symbols):
-    for i in range(0, len(symbols)):
-        symbol = symbols[i]
-        if symbol[-1] == '.':
-            symbols[i] = symbol[0:-1]
 
 
 if __name__ == '__main__':

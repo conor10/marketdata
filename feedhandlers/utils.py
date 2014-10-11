@@ -23,6 +23,11 @@ def load_symbol_list(filename):
     except IOError:
         raise InvalidFileException('Unable to open file: {}'.format(filename))
 
+def trim_trailing_period(symbols):
+    for i in range(0, len(symbols)):
+        symbol = symbols[i]
+        if len(symbol) > 0 and symbol[-1] == '.':
+            symbols[i] = symbol[0:-1]
 
 def random_sleep(interval=0.5):
     interval = math.fabs(random.random() - interval)
