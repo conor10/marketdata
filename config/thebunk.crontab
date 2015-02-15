@@ -2,6 +2,8 @@
 30 23 * * 0 ${HOME}/trading/marketdata/scripts/runner pull_symbols_s3.sh > ${HOME}/trading/cron/pull_symbols_s3.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
 # Roll our current symbols
 45 23 * * 0 ${HOME}/trading/marketdata/scripts/runner roll_symbols.sh > ${HOME}/trading/cron/roll_symbols.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+# Delete old chains
+00 21 * * 0 ${HOME}/trading/marketdata/scripts/runner delete_old_chains.sh > ${HOME}/trading/cron/delete_old_chains.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
 #
 # S&P500 options chains download - CBOE closes at 15:00 Central (UTC-5)
 00 20 * * 1-5 ${HOME}/trading/marketdata/scripts/runner sp500_options_chain_download.sh > ${HOME}/trading/cron/sp500_option_chain_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
