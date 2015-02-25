@@ -8,3 +8,6 @@
 
 /usr/bin/aws s3 sync ${SP500_PRICES}/${DATE} \
   s3://conor10.tickdata/prices/SP500/${DATE}
+
+/usr/bin/aws s3 sync ${VIX_PRICES}/${DATE} \
+  s3://conor10.tickdata/prices/VIX/${DATE}

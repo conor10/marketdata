@@ -30,8 +30,11 @@ update_symbols() {
           msg "Deleting previous link, new symbol list size: ${line_count},"\
             "previous symbol list size: ${prev_line_count}"
           echo /bin/rm "${CURRENT}"
-          msg "Setting ${latest_dir} to current"
-          ln -s "${latest_dir}" "${CURRENT}"
+          msg "Updating latest directory"
+          cat "${latest_symbols}" "${CURRENT_SYMBOLS}" \
+            | sort \
+            | uniq > "${latest_symbols}.new"
+
         fi
       fi
     else

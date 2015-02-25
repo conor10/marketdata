@@ -24,6 +24,8 @@
 30 23 * * 1-5 ${HOME}/trading/marketdata/scripts/runner sp500_prices_download.sh > ${HOME}/trading/cron/sp500_prices_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
 # ASX200 prices download
 30 09 * * 1-5 ${HOME}/trading/marketdata/scripts/runner asx200_prices_download.sh > ${HOME}/trading/cron/asx200_prices_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
+# VIX prices download
+45 23 * * 1-5 ${HOME}/trading/marketdata/scripts/runner vix_prices_download.sh > ${HOME}/trading/cron/vix_prices_download.`/bin/date +'\%Y\%m\%d-\%H\%M\%S'`.out 2>&1
 #
 # Push price updates to S3
 #

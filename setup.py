@@ -30,5 +30,6 @@ setup(
              'scripts/sp500_symbol_download.sh',
              'scripts/asx200_prices_download.sh',
              'scripts/asx200_symbol_download.sh',
+             'scripts/vix_prices_download.sh',
              'scripts/roll_symbols.sh']
 )
